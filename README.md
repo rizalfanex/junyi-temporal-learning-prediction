@@ -245,26 +245,26 @@ The dataset scan confirmed that logged content identifiers have matching content
 
 ### 7.1 Temporal Next-Attempt Prediction
 
-For each student \(u\), the raw attempts are sorted chronologically:
+For each student $`u`$, the raw attempts are sorted chronologically:
 
 $$
-\mathcal{S}_u = \left\{a_{u,1}, a_{u,2}, \ldots, a_{u,t}, \ldots, a_{u,T_u}\right\}
+\mathcal{S}_u = \{a_{u,1}, a_{u,2}, \ldots, a_{u,t}, \ldots, a_{u,T_u}\}
 $$
 
-where \(a_{u,t}\) denotes the \(t\)-th problem attempt made by student \(u\), and \(T_u\) is the total number of attempts for that student.
+where $`a_{u,t}`$ denotes the $`t`$-th problem attempt made by student $`u`$, and $`T_u`$ is the total number of attempts for that student.
 
 Each attempt contains behavioral and content information:
 
 $$
-a_{u,t} = \left(x_{u,t}, y_{u,t}\right)
+a_{u,t} = (x_{u,t}, y_{u,t})
 $$
 
-where \(x_{u,t}\) represents observed features and \(y_{u,t} \in \{0,1\}\) represents correctness.
+where $`x_{u,t}`$ represents observed features and $`y_{u,t} \in \{0,1\}`$ represents correctness.
 
 The prediction problem is:
 
 $$
-\hat{p}_{u,t} = P\left(y_{u,t}=1 \mid a_{u,1}, a_{u,2}, \ldots, a_{u,t-1}\right)
+\hat{p}_{u,t} = P(y_{u,t}=1 \mid a_{u,1}, a_{u,2}, \ldots, a_{u,t-1})
 $$
 
 In words, the model predicts whether the target attempt will be correct using only the student's prior learning history.
@@ -320,13 +320,19 @@ The central methodological principle is:
 
 ### 8.2 Student-Wise Temporal Ordering
 
-For each student \(u\), attempts are sorted by:
+For each student, all problem attempts are sorted in chronological order before feature engineering and sequence construction.
 
-$$
-\text{sort}\left(a_{u,t}\right) = \left(\text{uuid}, \text{timestamp\_TW}, \text{raw\_row\_id}\right)
-$$
+The implementation sorts records using three keys in this order:
 
-The stable `raw_row_id` resolves ties when multiple records have the same timestamp.
+| Order | Key | Purpose |
+|---:|---|---|
+| 1 | `uuid` | Groups records by student |
+| 2 | `timestamp_TW` | Orders attempts by time |
+| 3 | `raw_row_id` | Resolves ties when multiple attempts have the same timestamp |
+
+The stable `raw_row_id` ensures deterministic ordering when two or more records share the same timestamp.
+
+This ordering step is important because all historical features must be computed from past attempts only. Without stable chronological ordering, rolling accuracy, previous correctness, streak features, and sequence windows could become inconsistent.
 
 ### 8.3 Leakage-Aware Feature Construction
 
