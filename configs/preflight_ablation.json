@@ -1,0 +1,19 @@
+{
+  "extends": "preflight.json",
+  "ablation": {
+    "output_dir": "hasil_project_junyi_preflight/outputs/ablation",
+    "models": [
+      "logistic_regression",
+      "hist_gradient_boosting"
+    ],
+    "ablations": [
+      "full",
+      "no_rolling_accuracy",
+      "no_content_metadata",
+      "no_difficulty_proxies",
+      "behavior_history_only"
+    ],
+    "max_train_rows": 5000,
+    "max_eval_rows": 1000
+  }
+}

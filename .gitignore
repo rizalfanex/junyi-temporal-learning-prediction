@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Local notebooks and editor noise
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Raw Junyi dataset files are large and must be downloaded/placed locally
+dataset/*.csv
+data/processed/
+
+# Generated experiment outputs
+outputs/
+reports/
+hasil_project_junyi/
+hasil_project_junyi_journal/
+hasil_project_junyi_preflight/
+
+# Large model and prediction artifacts
+*.pt
+*.pth
+*.joblib
+*.pkl
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

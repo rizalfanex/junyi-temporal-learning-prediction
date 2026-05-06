@@ -1,0 +1,22 @@
+{
+  "extends": "gx10_journal.json",
+  "ablation": {
+    "output_dir": "hasil_project_junyi_journal/outputs/ablation",
+    "models": [
+      "logistic_regression"
+    ],
+    "ablations": [
+      "full",
+      "no_rolling_accuracy",
+      "no_temporal_activity",
+      "no_attempt_behavior",
+      "no_content_metadata",
+      "no_difficulty_proxies",
+      "no_topic_history",
+      "no_problem_identity",
+      "behavior_history_only"
+    ],
+    "max_train_rows": null,
+    "max_eval_rows": null
+  }
+}

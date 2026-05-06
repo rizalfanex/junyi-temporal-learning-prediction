@@ -1,0 +1,26 @@
+{
+  "extends": "gx10_full.json",
+  "paths": {
+    "raw_data_dir": "dataset",
+    "processed_dir": "hasil_project_junyi_journal/processed_data",
+    "figures_dir": "hasil_project_junyi_journal/outputs/figures",
+    "metrics_dir": "hasil_project_junyi_journal/outputs/metrics",
+    "models_dir": "hasil_project_junyi_journal/outputs/models",
+    "reports_dir": "hasil_project_junyi_journal/reports"
+  },
+  "baseline": {
+    "models": [
+      "majority",
+      "previous_correct",
+      "logistic_regression",
+      "random_forest",
+      "hist_gradient_boosting"
+    ]
+  },
+  "sequence": {
+    "sequence_length": 100,
+    "epochs": 12,
+    "checkpoint_metric": "roc_auc",
+    "checkpoint_name": "temporal_transformer_gx10_journal.pt"
+  }
+}

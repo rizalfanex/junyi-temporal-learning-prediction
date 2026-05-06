@@ -1,0 +1,30 @@
+{
+  "extends": "default.json",
+  "preprocessing": {
+    "mode": "quick",
+    "quick_rows": 200000,
+    "output_file": "attempt_features_debug.csv"
+  },
+  "baseline": {
+    "max_train_rows": 50000,
+    "max_eval_rows": 20000
+  },
+  "sequence": {
+    "sequence_length": 20,
+    "min_history_length": 3,
+    "batch_size": 512,
+    "epochs": 1,
+    "d_model": 64,
+    "n_heads": 4,
+    "num_layers": 1,
+    "embedding_dim": 16,
+    "max_train_sequences": 20000,
+    "max_val_sequences": 5000,
+    "max_test_sequences": 5000,
+    "num_workers": 0,
+    "checkpoint_name": "temporal_transformer_debug.pt"
+  },
+  "uncertainty": {
+    "mc_dropout_passes": 5
+  }
+}

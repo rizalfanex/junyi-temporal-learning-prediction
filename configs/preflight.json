@@ -1,0 +1,35 @@
+{
+  "extends": "debug.json",
+  "paths": {
+    "raw_data_dir": "dataset",
+    "processed_dir": "hasil_project_junyi_preflight/processed_data",
+    "figures_dir": "hasil_project_junyi_preflight/outputs/figures",
+    "metrics_dir": "hasil_project_junyi_preflight/outputs/metrics",
+    "models_dir": "hasil_project_junyi_preflight/outputs/models",
+    "reports_dir": "hasil_project_junyi_preflight/reports"
+  },
+  "preprocessing": {
+    "output_file": "attempt_features_preflight.csv"
+  },
+  "baseline": {
+    "models": [
+      "random_forest",
+      "hist_gradient_boosting"
+    ],
+    "max_train_rows": 5000,
+    "max_eval_rows": 1000
+  },
+  "sequence": {
+    "sequence_length": 12,
+    "min_history_length": 3,
+    "epochs": 1,
+    "max_train_sequences": 1000,
+    "max_val_sequences": 300,
+    "max_test_sequences": 300,
+    "checkpoint_metric": "roc_auc",
+    "checkpoint_name": "temporal_transformer_preflight.pt"
+  },
+  "uncertainty": {
+    "mc_dropout_passes": 3
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "paths": {
+    "raw_data_dir": "dataset",
+    "processed_dir": "data/processed",
+    "figures_dir": "outputs/figures",
+    "metrics_dir": "outputs/metrics",
+    "models_dir": "outputs/models",
+    "reports_dir": "reports"
+  },
+  "dataset": {
+    "log_file": "Log_Problem.csv",
+    "content_file": "Info_Content.csv",
+    "user_file": "Info_UserData.csv",
+    "student_id_col": "uuid",
+    "content_id_col": "ucid",
+    "problem_id_col": "upid",
+    "timestamp_col": "timestamp_TW",
+    "correct_col": "is_correct"
+  },
+  "scan": {
+    "sample_rows": 10000,
+    "full_scan": true
+  },
+  "preprocessing": {
+    "mode": "quick",
+    "quick_rows": 500000,
+    "session_gap_minutes": 30,
+    "clip_time_gap_hours": 168,
+    "drop_first_attempt_without_history": true,
+    "include_user_metadata": false,
+    "output_file": "attempt_features.csv"
+  },
+  "splits": {
+    "train_frac": 0.7,
+    "val_frac": 0.15,
+    "test_frac": 0.15,
+    "min_attempts_per_student": 2
+  },
+  "features": {
+    "categorical_columns": [
+      "ucid",
+      "upid",
+      "difficulty",
+      "learning_stage",
+      "level2_id",
+      "level3_id",
+      "level4_id"
+    ],
+    "baseline_numeric_columns": [
+      "hist_attempt_count",
+      "hist_correct_count",
+      "student_prev_accuracy",
+      "rolling_accuracy_5",
+      "rolling_accuracy_10",
+      "consecutive_wrong_count",
+      "consecutive_correct_count",
+      "time_gap_sec",
+      "daily_activity_count_prior",
+      "session_attempt_index",
+      "student_exercise_attempt_count_prior",
+      "topic_attempt_count_prior",
+      "topic_prev_accuracy",
+      "prev_total_sec_taken",
+      "prev_total_attempt_cnt",
+      "prev_used_hint_cnt",
+      "prev_is_hint_used",
+      "prev_is_correct",
+      "problem_number",
+      "exercise_problem_repeat_session",
+      "level",
+      "content_difficulty_ordinal",
+      "exercise_incorrect_rate_train",
+      "topic_incorrect_rate_train"
+    ],
+    "sequence_numeric_columns": [
+      "time_gap_sec",
+      "total_sec_taken",
+      "total_attempt_cnt",
+      "used_hint_cnt",
+      "is_hint_used",
+      "problem_number",
+      "exercise_problem_repeat_session",
+      "level",
+      "student_prev_accuracy",
+      "rolling_accuracy_5",
+      "rolling_accuracy_10",
+      "consecutive_wrong_count",
+      "consecutive_correct_count",
+      "student_exercise_attempt_count_prior",
+      "topic_attempt_count_prior",
+      "topic_prev_accuracy"
+    ],
+    "sequence_categorical_columns": [
+      "ucid",
+      "upid",
+      "difficulty",
+      "learning_stage",
+      "level2_id",
+      "level3_id",
+      "level4_id",
+      "is_correct"
+    ]
+  },
+  "baseline": {
+    "random_seed": 42,
+    "max_train_rows": 300000,
+    "max_eval_rows": 100000,
+    "models": [
+      "majority",
+      "previous_correct",
+      "logistic_regression",
+      "random_forest"
+    ],
+    "random_forest_estimators": 200,
+    "hist_gradient_boosting_max_iter": 300,
+    "hist_gradient_boosting_learning_rate": 0.05
+  },
+  "sequence": {
+    "random_seed": 42,
+    "model_type": "transformer",
+    "sequence_length": 50,
+    "min_history_length": 5,
+    "batch_size": 256,
+    "learning_rate": 0.0005,
+    "weight_decay": 0.0001,
+    "epochs": 5,
+    "checkpoint_metric": "val_loss",
+    "d_model": 128,
+    "n_heads": 4,
+    "num_layers": 2,
+    "dropout": 0.2,
+    "embedding_dim": 32,
+    "max_vocab_size": 50000,
+    "max_train_sequences": 200000,
+    "max_val_sequences": 50000,
+    "max_test_sequences": 50000,
+    "num_workers": 2,
+    "checkpoint_name": "temporal_transformer.pt"
+  },
+  "uncertainty": {
+    "mc_dropout_passes": 30,
+    "high_risk_threshold": 0.4,
+    "low_risk_threshold": 0.7,
+    "high_uncertainty_quantile": 0.8
+  }
+}

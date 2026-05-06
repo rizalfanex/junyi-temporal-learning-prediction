@@ -1,0 +1,22 @@
+{
+  "extends": "default.json",
+  "preprocessing": {
+    "mode": "full",
+    "output_file": "attempt_features_full.csv"
+  },
+  "baseline": {
+    "max_train_rows": null,
+    "max_eval_rows": null
+  },
+  "sequence": {
+    "batch_size": 512,
+    "epochs": 8,
+    "max_train_sequences": null,
+    "max_val_sequences": null,
+    "max_test_sequences": null,
+    "checkpoint_name": "temporal_transformer_gx10_full.pt"
+  },
+  "uncertainty": {
+    "mc_dropout_passes": 50
+  }
+}
