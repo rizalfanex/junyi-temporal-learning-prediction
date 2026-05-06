@@ -9,9 +9,10 @@
 </p>
 
 <p align="center">
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-blue">
-  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-GRU%20%7C%20Transformer-red">
-  <img alt="scikit-learn" src="https://img.shields.io/badge/scikit--learn-Tabular%20Baselines-orange">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.10.20-blue">
+  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-2.11.0%2Bcu130-red">
+  <img alt="CUDA" src="https://img.shields.io/badge/CUDA-Available-green">
+  <img alt="GPU" src="https://img.shields.io/badge/GPU-NVIDIA%20GB10-brightgreen">
   <img alt="Dataset" src="https://img.shields.io/badge/Dataset-Junyi%20Academy-green">
   <img alt="Task" src="https://img.shields.io/badge/Task-Next--Attempt%20Correctness-purple">
   <img alt="Status" src="https://img.shields.io/badge/Status-Complete-brightgreen">
@@ -19,39 +20,82 @@
 
 ---
 
-## Executive Summary
+## 1. Executive Summary
 
-This repository presents a complete, reproducible **educational data mining** project for predicting student learning performance from large-scale online learning logs. The project uses the **Junyi Academy Online Learning Activity Dataset**, a public dataset released through Kaggle that contains more than 16 million exercise attempt logs from more than 72,000 students over approximately one year.
+This repository presents a complete, reproducible **educational data mining** project for predicting student learning performance from large-scale online learning logs. The project uses the **Junyi Academy Online Learning Activity Dataset**, a public dataset released through Kaggle that contains more than **16 million** exercise attempt logs from more than **72,000** students over approximately one academic year.
 
-The task is formulated as **temporal next-attempt correctness prediction**. Given a student's prior online learning history, the system predicts whether the next problem attempt will be correct. This framing is directly aligned with learning analytics, educational data mining, student performance prediction, and knowledge tracing-adjacent research.
+The task is formulated as **temporal next-attempt correctness prediction**. Given a student's prior online learning history, the system predicts whether the next problem attempt will be correct. This framing is directly aligned with **learning analytics**, **educational data mining**, **student performance prediction**, and **knowledge tracing-adjacent research**.
 
 The project title is:
 
 > **Bayesian Transformer-Based Temporal Learning Behavior Modeling for Student Performance Prediction**
 
-The final experimental result should be interpreted carefully. Although the project includes GRU and Transformer sequence models, the best-performing model in the completed experiment is a leakage-aware **Logistic Regression** model using engineered temporal behavior and exercise/content context features. The sequence models remain important because they provide neural temporal baselines and enable **Bayesian uncertainty-aware risk grouping** through Monte Carlo Dropout.
+The completed experiment should be interpreted carefully. Although the project includes GRU and Transformer sequence models, the strongest test performance was achieved by a leakage-aware **Logistic Regression** model using engineered temporal behavior and exercise/content context features. The sequence models remain important because they provide neural temporal baselines and enable **Bayesian uncertainty-aware risk grouping** through Monte Carlo Dropout.
 
-The strongest academic interpretation is therefore:
+The strongest academic interpretation is:
 
 > Junyi Academy online learning logs contain strong predictive signals for next-attempt correctness. Leakage-aware temporal feature engineering and content-context information provide strong predictive performance, while sequence models and Bayesian uncertainty estimation support risk-aware educational interpretation.
 
 ---
 
-## Why This Project Matters
+## 2. Table of Contents
 
-Online learning platforms capture detailed traces of how students interact with learning materials: what exercises they attempt, when they attempt them, whether they answer correctly, how long they spend, whether they use hints, and how their learning behavior evolves over time. These records are valuable because they can support data-driven learning analytics, early warning systems, adaptive practice, personalized learning pathways, and teacher-facing decision support.
-
-However, educational log modeling is methodologically sensitive. A model can easily appear strong if future information leaks into training features. For example, random row-level splitting may allow a student's future behavior to influence training, and aggregate difficulty features can accidentally include the label of the same row being predicted. This repository explicitly addresses these concerns through temporal within-student splitting, shifted historical features, train-only difficulty estimates, and leave-one-out encodings for training aggregates.
-
-This makes the project more than a simple machine learning exercise. It is an end-to-end example of how to build a **methodologically defensible educational data science pipeline**.
+- [1. Executive Summary](#1-executive-summary)
+- [2. Table of Contents](#2-table-of-contents)
+- [3. Project Scope and Research Positioning](#3-project-scope-and-research-positioning)
+  - [3.1 Educational Data Scope](#31-educational-data-scope)
+  - [3.2 What This Project Does Not Do](#32-what-this-project-does-not-do)
+  - [3.3 Why the Project Matters](#33-why-the-project-matters)
+- [4. Dataset Source and Citation](#4-dataset-source-and-citation)
+  - [4.1 Official Dataset Source](#41-official-dataset-source)
+  - [4.2 Original Dataset Citation](#42-original-dataset-citation)
+- [5. Research Questions](#5-research-questions)
+- [6. Dataset Inventory and Schema](#6-dataset-inventory-and-schema)
+  - [6.1 Full Dataset Inventory](#61-full-dataset-inventory)
+  - [6.2 Schema Alignment](#62-schema-alignment)
+  - [6.3 Verified Table Relationship](#63-verified-table-relationship)
+- [7. Problem Formulation](#7-problem-formulation)
+  - [7.1 Temporal Next-Attempt Prediction](#71-temporal-next-attempt-prediction)
+  - [7.2 Binary Classification Objective](#72-binary-classification-objective)
+- [8. Methodology](#8-methodology)
+  - [8.1 Methodological Pipeline](#81-methodological-pipeline)
+  - [8.2 Student-Wise Temporal Ordering](#82-student-wise-temporal-ordering)
+  - [8.3 Leakage-Aware Feature Construction](#83-leakage-aware-feature-construction)
+  - [8.4 Temporal Train/Validation/Test Split](#84-temporal-trainvalidationtest-split)
+  - [8.5 Logistic Regression Baseline](#85-logistic-regression-baseline)
+  - [8.6 GRU Sequence Model](#86-gru-sequence-model)
+  - [8.7 Transformer Encoder Sequence Model](#87-transformer-encoder-sequence-model)
+  - [8.8 Monte Carlo Dropout Bayesian Approximation](#88-monte-carlo-dropout-bayesian-approximation)
+  - [8.9 Risk Group Formulation](#89-risk-group-formulation)
+- [9. Feature Engineering](#9-feature-engineering)
+- [10. Training Environment](#10-training-environment)
+- [11. Model Evaluation Metrics](#11-model-evaluation-metrics)
+- [12. Main Experimental Results](#12-main-experimental-results)
+- [13. Ablation Study](#13-ablation-study)
+- [14. Bayesian Uncertainty and Risk Group Analysis](#14-bayesian-uncertainty-and-risk-group-analysis)
+- [15. Figure Walkthrough and Research Narrative](#15-figure-walkthrough-and-research-narrative)
+- [16. Reproducibility](#16-reproducibility)
+- [17. Repository Structure](#17-repository-structure)
+- [18. Academic Interpretation](#18-academic-interpretation)
+- [19. Limitations](#19-limitations)
+- [20. Future Work](#20-future-work)
+- [21. Project Status](#21-project-status)
 
 ---
 
-## Scope Clarification
+## 3. Project Scope and Research Positioning
 
-This project is strictly based on **educational learning logs**.
+### 3.1 Educational Data Scope
 
-It does **not** use:
+This project is strictly based on **educational learning logs**. The unit of analysis is:
+
+> **A student's chronological sequence of online problem attempts.**
+
+The term **temporal** refers to the ordering of learning events over time. Each event corresponds to a student attempting a problem on the Junyi Academy platform.
+
+### 3.2 What This Project Does Not Do
+
+This project does **not** use:
 
 - computer vision,
 - camera monitoring,
@@ -62,15 +106,28 @@ It does **not** use:
 - person re-identification,
 - classroom surveillance.
 
-The unit of analysis is:
+This clarification is important because the project is designed for **Data Science** and **Educational Data**, not image-based tracking or physical spatiotemporal analysis.
 
-> **A student's chronological sequence of online problem attempts.**
+### 3.3 Why the Project Matters
 
-The term **temporal** refers to the ordering of student learning events over time, not physical movement or camera-based tracking.
+Online learning platforms capture detailed traces of how students interact with learning materials: what exercises they attempt, when they attempt them, whether they answer correctly, how long they spend, whether they use hints, and how their learning behavior evolves over time.
+
+These records can support:
+
+- learning analytics,
+- early warning analysis,
+- adaptive practice,
+- personalized learning pathways,
+- teacher-facing decision support,
+- educational data mining research.
+
+However, educational log modeling is methodologically sensitive. A model can appear strong if future information leaks into training features. For example, random row-level splitting may allow a student's future behavior to influence training, and aggregate difficulty features can accidentally include the label of the same row being predicted. This repository explicitly addresses these concerns through temporal within-student splitting, shifted historical features, train-only difficulty estimates, and leave-one-out encodings for training aggregates.
 
 ---
 
-## Dataset Source
+## 4. Dataset Source and Citation
+
+### 4.1 Official Dataset Source
 
 Dataset used in this project:
 
@@ -78,9 +135,9 @@ Dataset used in this project:
 Kaggle source:  
 https://www.kaggle.com/datasets/junyiacademy/learning-activity-public-dataset-by-junyi-academy
 
-The dataset is released by **Junyi Academy Foundation**, a Taiwan-based nonprofit educational organization. The Kaggle dataset description states that the dataset contains over 16 million exercise attempt logs from more than 72,000 students across the period from 2018/08 to 2019/07.
+The dataset is released by **Junyi Academy Foundation**, a Taiwan-based nonprofit educational organization. The dataset description states that it contains over 16 million exercise attempt logs from more than 72,000 students across the period from 2018/08 to 2019/07.
 
-### Original Dataset Citation
+### 4.2 Original Dataset Citation
 
 ```bibtex
 @article{JunyiOnlineLearningDataset,
@@ -93,7 +150,7 @@ The dataset is released by **Junyi Academy Foundation**, a Taiwan-based nonprofi
 
 ---
 
-## Research Questions
+## 5. Research Questions
 
 | ID | Research Question | Why It Matters |
 |---|---|---|
@@ -105,7 +162,9 @@ The dataset is released by **Junyi Academy Foundation**, a Taiwan-based nonprofi
 
 ---
 
-## Dataset Inventory
+## 6. Dataset Inventory and Schema
+
+### 6.1 Full Dataset Inventory
 
 A full streaming scan was performed before modeling. This was done to avoid assuming the structure of the dataset before inspecting the actual CSV files.
 
@@ -128,17 +187,11 @@ Additional verified dataset statistics:
 | Incorrect attempts | 4,804,753 |
 | Date range | 2018-08-01 to 2019-08-01 |
 
-### Dataset Interpretation
-
-The dataset is sufficiently large for full-scale data science experimentation. It contains millions of attempt-level learning events, which makes it suitable for temporal modeling, feature engineering, sequence modeling, and uncertainty-aware evaluation. The large number of students and exercises also makes the dataset appropriate for examining both student-level behavior and content-level difficulty signals.
-
----
-
-## Dataset Schema Alignment
+### 6.2 Schema Alignment
 
 The project uses the actual Junyi schema after scanning the CSV files.
 
-### Main Log Table: `Log_Problem.csv`
+#### 6.2.1 Main Log Table: `Log_Problem.csv`
 
 | Column | Meaning in This Project |
 |---|---|
@@ -157,7 +210,7 @@ The project uses the actual Junyi schema after scanning the CSV files.
 | `is_upgrade` | Whether student upgraded |
 | `level` | Exercise or mastery-related level field |
 
-### Content Metadata: `Info_Content.csv`
+#### 6.2.2 Content Metadata: `Info_Content.csv`
 
 | Column | Meaning in This Project |
 |---|---|
@@ -172,13 +225,11 @@ The project uses the actual Junyi schema after scanning the CSV files.
 | `level3_id` | Curriculum hierarchy level 3 |
 | `level4_id` | Curriculum hierarchy level 4 |
 
-### User Metadata: `Info_UserData.csv`
+#### 6.2.3 User Metadata: `Info_UserData.csv`
 
 User metadata is available, but it is intentionally not the central predictive focus. The study emphasizes **learning behavior** and **content interaction patterns**, not demographic profiling.
 
----
-
-## Verified Table Relationship
+### 6.3 Verified Table Relationship
 
 The main verified join is:
 
@@ -190,37 +241,58 @@ The dataset scan confirmed that logged content identifiers have matching content
 
 ---
 
-## Problem Formulation
+## 7. Problem Formulation
 
-The task is formulated as **binary next-attempt correctness prediction**.
+### 7.1 Temporal Next-Attempt Prediction
 
-For each student, attempts are sorted chronologically:
+For each student \(u\), the raw attempts are sorted chronologically:
 
-```text
-Attempt 1 -> Attempt 2 -> Attempt 3 -> ... -> Attempt t -> Attempt t+1
-```
+$$
+\mathcal{S}_u = \left\{a_{u,1}, a_{u,2}, \ldots, a_{u,t}, \ldots, a_{u,T_u}\right\}
+$$
 
-The model uses information available before the target attempt to estimate:
+where \(a_{u,t}\) denotes the \(t\)-th problem attempt made by student \(u\), and \(T_u\) is the total number of attempts for that student.
 
-```text
-P(is_correct at next attempt = 1 | prior learning history)
-```
+Each attempt contains behavioral and content information:
 
-In practical terms:
+$$
+a_{u,t} = \left(x_{u,t}, y_{u,t}\right)
+$$
 
-| Component | Definition |
-|---|---|
-| Input | Historical learning behavior before the target attempt |
-| Output | Probability that the target attempt will be correct |
-| Label | `is_correct` of the next attempt |
-| Task type | Binary classification |
-| Study type | Offline educational data mining |
+where \(x_{u,t}\) represents observed features and \(y_{u,t} \in \{0,1\}\) represents correctness.
 
-This problem formulation is appropriate for learning analytics because it asks whether prior learning behavior can predict future performance.
+The prediction problem is:
+
+$$
+\hat{p}_{u,t} = P\left(y_{u,t}=1 \mid a_{u,1}, a_{u,2}, \ldots, a_{u,t-1}\right)
+$$
+
+In words, the model predicts whether the target attempt will be correct using only the student's prior learning history.
+
+### 7.2 Binary Classification Objective
+
+For tabular models, the prediction is based on a leakage-aware feature vector \(\phi_{u,t}\):
+
+$$
+\hat{p}_{u,t} = f_\theta\left(\phi_{u,t}\right)
+$$
+
+where \(\phi_{u,t}\) includes only information available before attempt \(t\).
+
+The binary cross-entropy loss is:
+
+$$
+\mathcal{L}_{BCE}
+= -\frac{1}{N}\sum_{i=1}^{N}\left[y_i \log\left(\hat{p}_i\right) + \left(1-y_i\right)\log\left(1-\hat{p}_i\right)\right]
+$$
+
+This objective is used for neural sequence models and conceptually aligns with probabilistic binary classification.
 
 ---
 
-## Methodology Overview
+## 8. Methodology
+
+### 8.1 Methodological Pipeline
 
 The full experimental pipeline is:
 
@@ -242,37 +314,75 @@ Raw Junyi CSV files
     -> journal-style tables, figures, and reports
 ```
 
-### Methodological Rationale
-
-The pipeline is designed around a core principle:
+The central methodological principle is:
 
 > Each prediction must use only information that would have been available before the target attempt.
 
-This is critical for educational data mining because model performance can be inflated if future attempts, test-set labels, or current-attempt outcomes are accidentally included in features.
+### 8.2 Student-Wise Temporal Ordering
 
----
+For each student \(u\), attempts are sorted by:
 
-## Leakage-Aware Experimental Design
+$$
+\text{sort}\left(a_{u,t}\right) = \left(\text{uuid}, \text{timestamp\_TW}, \text{raw\_row\_id}\right)
+$$
 
-Preventing data leakage is one of the central strengths of this repository.
+The stable `raw_row_id` resolves ties when multiple records have the same timestamp.
 
-| Leakage Risk | Prevention Strategy |
-|---|---|
-| Random row splitting leaks future student behavior | Temporal split within each `uuid` |
-| Current correctness leaks into rolling statistics | Rolling features are computed from shifted correctness history |
-| Current attempt time/hint fields leak outcome information | Tabular features use previous-attempt versions where appropriate |
-| Validation/test outcomes leak into difficulty estimates | Exercise/topic difficulty proxies are estimated from training split only |
-| Training aggregate encoding includes its own row label | Leave-one-out encoding is used for training rows |
-| Equal timestamps create unstable order | Sorting uses timestamp plus stable `raw_row_id` |
-| Target attempt appears inside model input | Sequence windows exclude the target attempt |
+### 8.3 Leakage-Aware Feature Construction
 
-### Why This Matters
+#### 8.3.1 Previous Accuracy
 
-Without these controls, a model might appear to perform well because it indirectly sees the answer. The leakage-aware design makes the results more conservative, credible, and suitable for academic review.
+The previous accuracy of a student before attempt \(t\) is computed as:
 
----
+$$
+\text{PrevAcc}_{u,t}
+= \frac{\sum_{j=1}^{t-1} y_{u,j}}{t-1}
+$$
 
-## Data Splitting Strategy
+This excludes the current target label \(y_{u,t}\).
+
+#### 8.3.2 Rolling Accuracy
+
+The rolling accuracy over the previous \(k\) attempts is:
+
+$$
+\text{RollAcc}_{u,t}^{(k)}
+= \frac{1}{k}\sum_{j=t-k}^{t-1} y_{u,j}
+$$
+
+where only attempts before \(t\) are included. In this project, rolling windows such as \(k=5\) and \(k=10\) are used.
+
+#### 8.3.3 Time Gap
+
+The time gap between two consecutive attempts is:
+
+$$
+\Delta t_{u,t} = \text{timestamp}_{u,t} - \text{timestamp}_{u,t-1}
+$$
+
+This feature captures learning rhythm, spacing, and inactivity periods.
+
+#### 8.3.4 Exercise Difficulty Proxy
+
+For validation and test rows, empirical exercise difficulty is estimated only from the training split:
+
+$$
+\text{Diff}_{e}
+= 1 - \frac{\sum_{i \in \mathcal{D}_{train}(e)} y_i}{\left|\mathcal{D}_{train}(e)\right|}
+$$
+
+where \(e\) is an exercise or content identifier.
+
+For training rows, leave-one-out encoding is used to avoid including the row's own label:
+
+$$
+\text{Diff}_{e,i}^{LOO}
+= 1 - \frac{\sum_{j \in \mathcal{D}_{train}(e), j \neq i} y_j}{\left|\mathcal{D}_{train}(e)\right|-1}
+$$
+
+This prevents target leakage in aggregate encodings.
+
+### 8.4 Temporal Train/Validation/Test Split
 
 The final processed data is split temporally within each student.
 
@@ -282,11 +392,144 @@ The final processed data is split temporally within each student.
 | Validation | 2,431,344 |
 | Test | 2,465,669 |
 
-This strategy is more realistic than random row splitting because it evaluates whether earlier behavior can predict later behavior for the same student. It also reduces the risk of future information leaking into model training.
+This strategy is more realistic than random row splitting because it evaluates whether earlier behavior can predict later behavior for the same student.
+
+### 8.5 Logistic Regression Baseline
+
+The Logistic Regression model estimates correctness probability as:
+
+$$
+\hat{p}_i = \sigma\left(\mathbf{w}^{\top}\mathbf{x}_i + b\right)
+$$
+
+where:
+
+$$
+\sigma(z)=\frac{1}{1+e^{-z}}
+$$
+
+The model is simple but highly interpretable. In the completed experiment, it achieved the best ROC-AUC and PR-AUC because the engineered temporal and content-context features are highly informative.
+
+### 8.6 GRU Sequence Model
+
+For the GRU model, each input sequence is:
+
+$$
+\mathbf{X}_{u,t}^{(k)} = \left[\mathbf{x}_{u,t-k}, \ldots, \mathbf{x}_{u,t-2}, \mathbf{x}_{u,t-1}\right]
+$$
+
+The GRU updates its hidden state using reset and update gates:
+
+$$
+\mathbf{z}_t = \sigma\left(\mathbf{W}_z \mathbf{x}_t + \mathbf{U}_z \mathbf{h}_{t-1} + \mathbf{b}_z\right)
+$$
+
+$$
+\mathbf{r}_t = \sigma\left(\mathbf{W}_r \mathbf{x}_t + \mathbf{U}_r \mathbf{h}_{t-1} + \mathbf{b}_r\right)
+$$
+
+$$
+\tilde{\mathbf{h}}_t = \tanh\left(\mathbf{W}_h \mathbf{x}_t + \mathbf{U}_h\left(\mathbf{r}_t \odot \mathbf{h}_{t-1}\right) + \mathbf{b}_h\right)
+$$
+
+$$
+\mathbf{h}_t = \left(1-\mathbf{z}_t\right)\odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t
+$$
+
+The final hidden state is passed to a binary classification head.
+
+### 8.7 Transformer Encoder Sequence Model
+
+The Transformer model treats prior student attempts as an ordered sequence:
+
+$$
+\mathbf{X}_{u,t}^{(k)} = \left[\mathbf{x}_{u,t-k}, \ldots, \mathbf{x}_{u,t-1}\right]
+$$
+
+Categorical variables are mapped into embeddings, numerical features are projected into the same representation space, and positional information is added:
+
+$$
+\mathbf{H}^{(0)} = \text{Embed}\left(\mathbf{X}\right) + \text{PosEnc}\left(\mathbf{X}\right)
+$$
+
+Self-attention is computed as:
+
+$$
+\text{Attention}\left(\mathbf{Q},\mathbf{K},\mathbf{V}\right)
+= \text{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^{\top}}{\sqrt{d_k}}\right)\mathbf{V}
+$$
+
+Multi-head attention is:
+
+$$
+\text{MultiHead}\left(\mathbf{H}\right)
+= \text{Concat}\left(\text{head}_1, \ldots, \text{head}_m\right)\mathbf{W}^{O}
+$$
+
+where:
+
+$$
+\text{head}_i = \text{Attention}\left(\mathbf{H}\mathbf{W}_i^Q, \mathbf{H}\mathbf{W}_i^K, \mathbf{H}\mathbf{W}_i^V\right)
+$$
+
+The final representation is passed to a classifier:
+
+$$
+\hat{p}_{u,t}=\sigma\left(\mathbf{w}^{\top}\mathbf{h}_{u,t}^{final}+b\right)
+$$
+
+The Transformer is aligned with the project title because it models temporal learning histories using attention over prior attempts. However, in the completed experiment, it is not overclaimed as the best-performing model.
+
+### 8.8 Monte Carlo Dropout Bayesian Approximation
+
+Monte Carlo Dropout approximates Bayesian predictive uncertainty by keeping dropout active during inference.
+
+For \(M\) stochastic forward passes:
+
+$$
+\hat{p}_{i}^{(m)} = f_{\theta}^{(m)}\left(\mathbf{x}_i\right), \quad m=1,2,\ldots,M
+$$
+
+The final predictive mean is:
+
+$$
+\mu_i = \frac{1}{M}\sum_{m=1}^{M}\hat{p}_{i}^{(m)}
+$$
+
+The predictive uncertainty is estimated using predictive standard deviation:
+
+$$
+\sigma_i = \sqrt{\frac{1}{M}\sum_{m=1}^{M}\left(\hat{p}_{i}^{(m)}-\mu_i\right)^2}
+$$
+
+This allows the project to separate correctness probability from uncertainty.
+
+### 8.9 Risk Group Formulation
+
+Risk groups are defined from predicted correctness probability \(\mu_i\) and uncertainty \(\sigma_i\).
+
+A simple probability-based grouping is:
+
+$$
+\text{Risk}(i)=
+\begin{cases}
+\text{High-risk}, & \mu_i < \tau_{low} \\
+\text{Medium-risk}, & \tau_{low} \leq \mu_i < \tau_{high} \\
+\text{Low-risk}, & \mu_i \geq \tau_{high}
+\end{cases}
+$$
+
+Uncertainty grouping is defined by a quantile threshold \(q\):
+
+$$
+\text{Uncertain}(i)=\mathbb{1}\left[\sigma_i \geq Q_q\left(\sigma\right)\right]
+$$
+
+The combination of risk and uncertainty creates groups such as **high-risk confident**, **high-risk uncertain**, and **low-risk confident**.
 
 ---
 
-## Feature Engineering
+## 9. Feature Engineering
 
 The engineered features are designed to represent educationally meaningful learning behavior.
 
@@ -302,8 +545,6 @@ The engineered features are designed to represent educationally meaningful learn
 | Problem identity | `ucid`, `upid` | Exercise/problem-specific context |
 | Difficulty proxies | `exercise_incorrect_rate_train`, `topic_incorrect_rate_train` | Empirical item/topic difficulty estimated safely |
 
-### Feature Engineering Interpretation
-
 The feature design combines two types of signals:
 
 1. **Learning behavior signals**, such as previous accuracy, time gaps, streaks, and hint-related history.
@@ -313,77 +554,99 @@ The ablation study shows that content/problem identity contributes strongly to p
 
 ---
 
-## Modeling Strategy
+## 10. Training Environment
 
-The project compares multiple model families rather than relying on a single advanced method.
+The full training run was executed on a local GX10 machine. The environment was recorded during training to improve reproducibility and to make the computational context clear.
 
-| Model | Purpose |
+| Component | Value |
 |---|---|
-| Majority baseline | Naive reference based on the majority class |
-| Previous correctness | Simple temporal heuristic |
-| Logistic Regression | Interpretable and high-performing tabular baseline |
-| Random Forest | Nonlinear tabular baseline |
-| HistGradientBoosting | Additional tree-based baseline |
-| GRU | Recurrent neural temporal baseline |
-| Transformer Encoder | Attention-based temporal sequence model |
-| MC Dropout | Bayesian approximation for uncertainty estimation |
+| Python | 3.10.20 |
+| Operating system | Linux 6.17.0-1014-nvidia-aarch64 with glibc 2.39 |
+| CPU count | 20 |
+| System memory | 121.63 GB |
+| PyTorch | 2.11.0+cu130 |
+| CUDA available | Yes |
+| CUDA device count | 1 |
+| GPU | NVIDIA GB10 |
+| Main sequence batch size | 512 |
+| Transformer epochs | 8 |
+| MC Dropout passes | 50 |
 
-### Why Include Simple Models?
+### 10.1 Why Environment Reporting Matters
 
-In educational data mining, complex neural models are not automatically better. Strong engineered features can allow simpler models to perform very well. Including simple and complex models provides a fairer comparison and prevents overclaiming the Transformer architecture.
+The dataset contains more than 16 million raw attempts and more than 16 million processed temporal rows. Reporting the training environment helps readers understand the computational scale of the experiment and makes it easier to reproduce or adapt the pipeline on another machine.
 
----
+### 10.2 Recommended Configuration for Full Run
 
-## Transformer Sequence Model
-
-The Transformer model treats each student's learning history as a sequence.
-
-```text
-[Attempt t-k, ..., Attempt t-2, Attempt t-1] -> Predict Attempt t correctness
+```json
+{
+  "preprocessing": {
+    "mode": "full",
+    "output_file": "attempt_features_full.csv"
+  },
+  "baseline": {
+    "max_train_rows": null,
+    "max_eval_rows": null
+  },
+  "sequence": {
+    "batch_size": 512,
+    "epochs": 8,
+    "max_train_sequences": null,
+    "max_val_sequences": null,
+    "max_test_sequences": null,
+    "checkpoint_name": "temporal_transformer_gx10_full.pt"
+  },
+  "uncertainty": {
+    "mc_dropout_passes": 50
+  }
+}
 ```
 
-The architecture includes:
-
-- categorical embeddings for exercise/problem/content identifiers,
-- numerical feature projection,
-- positional or sequence-order representation,
-- Transformer Encoder blocks,
-- dropout,
-- binary classification head.
-
-### Transformer Interpretation
-
-The Transformer is included because online learning logs are naturally sequential. It can model interactions among prior attempts and use attention mechanisms to represent temporal dependencies. However, in the completed run, it was not the strongest predictive model. Its value in this project is as an attention-based temporal modeling baseline and as the model used for uncertainty-aware risk analysis.
-
 ---
 
-## Bayesian Uncertainty Estimation
-
-The Bayesian component is implemented using **Monte Carlo Dropout**.
-
-During inference:
-
-1. dropout remains active,
-2. the model performs repeated stochastic forward passes,
-3. the mean predicted probability becomes the final prediction,
-4. the predictive standard deviation becomes the uncertainty score.
-
-```text
-MC predictions: p1, p2, p3, ..., pN
-
-Final probability = mean(p1, p2, ..., pN)
-Uncertainty score = standard deviation(p1, p2, ..., pN)
-```
-
-### Why Uncertainty Matters in Education
-
-Educational predictions should not be treated as absolute decisions. A student predicted to be high-risk with low uncertainty is different from a student predicted to be high-risk with high uncertainty. Uncertainty-aware prediction supports more cautious, human-in-the-loop interpretation.
-
----
-
-## Evaluation Metrics
+## 11. Model Evaluation Metrics
 
 The project uses several metrics because no single metric fully describes model quality.
+
+### 11.1 ROC-AUC
+
+ROC-AUC measures whether the model ranks positive examples higher than negative examples:
+
+$$
+\text{ROC-AUC} = P\left(s^+ > s^-\right)
+$$
+
+where \(s^+\) is the score assigned to a positive example and \(s^-\) is the score assigned to a negative example.
+
+### 11.2 Precision, Recall, and F1-Score
+
+Precision and recall are:
+
+$$
+\text{Precision}=\frac{TP}{TP+FP}
+$$
+
+$$
+\text{Recall}=\frac{TP}{TP+FN}
+$$
+
+The F1-score is:
+
+$$
+F_1 = 2\cdot\frac{\text{Precision}\cdot\text{Recall}}{\text{Precision}+\text{Recall}}
+$$
+
+### 11.3 Brier Score
+
+The Brier Score measures probability calibration error:
+
+$$
+\text{Brier}=\frac{1}{N}\sum_{i=1}^{N}\left(\hat{p}_i-y_i\right)^2
+$$
+
+Lower Brier Score indicates better calibrated probability estimates.
+
+### 11.4 Metric Summary
 
 | Metric | Purpose |
 |---|---|
@@ -397,7 +660,7 @@ The project uses several metrics because no single metric fully describes model 
 
 ---
 
-## Main Results
+## 12. Main Experimental Results
 
 Final test performance:
 
@@ -411,7 +674,7 @@ Final test performance:
 | 6 | Previous Correct | 0.598 | 0.736 | 0.751 | 0.344 |
 | 7 | Majority | 0.500 | 0.691 | 0.817 | 0.214 |
 
-### Result Interpretation
+### 12.1 Result Interpretation
 
 The best-performing model by ROC-AUC and PR-AUC is **Logistic Regression**. This is an important and defensible result. It shows that carefully engineered temporal and content-context features can be highly predictive even with a simple linear model.
 
@@ -425,7 +688,7 @@ The correct conclusion is not that the Transformer dominates all models. The cor
 
 ---
 
-## Ablation Study
+## 13. Ablation Study
 
 A feature-family ablation study was conducted using Logistic Regression.
 
@@ -441,7 +704,7 @@ A feature-family ablation study was conducted using Logistic Regression.
 | No difficulty proxies | 0.801 | 0.000 | 0.000 | 0.000 |
 | No content metadata | 0.802 | -0.001 | -0.000 | -0.000 |
 
-### Ablation Interpretation
+### 13.1 Ablation Interpretation
 
 The ablation study shows that the model benefits strongly from problem/exercise identity and broader content context. When only behavior-history features are used, ROC-AUC drops from 0.801 to 0.707. Removing problem/exercise identity also causes a substantial ROC-AUC drop to 0.756.
 
@@ -454,7 +717,7 @@ The result is educationally meaningful because student success depends not only 
 
 ---
 
-## Risk Group Analysis
+## 14. Bayesian Uncertainty and Risk Group Analysis
 
 Monte Carlo Dropout uncertainty was used to build risk-aware prediction groups.
 
@@ -467,7 +730,7 @@ Monte Carlo Dropout uncertainty was used to build risk-aware prediction groups.
 | Low-risk confident | 953,093 | 0.909 | 0.825 | 0.022 |
 | Low-risk uncertain | 281,190 | 0.892 | 0.785 | 0.045 |
 
-### Educational Interpretation
+### 14.1 Educational Interpretation
 
 The risk grouping is one of the most important educational outputs of the project.
 
@@ -480,15 +743,13 @@ This analysis supports a human-in-the-loop perspective. The model should not aut
 
 ---
 
-# Figure Walkthrough and Research Narrative
+## 15. Figure Walkthrough and Research Narrative
 
 The figures below are not only visual outputs; they form a reader journey from dataset understanding, to model comparison, to uncertainty-aware educational interpretation.
 
----
+### 15.1 Dataset Overview Figures
 
-## 1. Dataset Overview Figures
-
-### 1.1 Correctness Distribution
+#### 15.1.1 Correctness Distribution
 
 <p align="center">
   <img src="docs/figures/correctness_distribution.png" width="65%" alt="Correctness distribution">
@@ -500,9 +761,7 @@ This figure summarizes the distribution of correct and incorrect attempts in the
 **Why it matters:**  
 The class distribution explains why this project reports ROC-AUC, PR-AUC, F1-score, and Brier Score rather than relying only on accuracy. A majority baseline can achieve a deceptively high F1 or accuracy-like impression, but it does not provide meaningful discrimination between likely correct and likely incorrect attempts.
 
----
-
-### 1.2 Activity Over Time
+#### 15.1.2 Activity Over Time
 
 <p align="center">
   <img src="docs/figures/activity_over_time.png" width="75%" alt="Activity over time">
@@ -514,9 +773,7 @@ This figure visualizes online learning activity across the dataset period. It he
 **Why it matters:**  
 Temporal variation is central to the project. Student behavior changes over time, and the prediction task is designed to respect chronological order. This figure supports the decision to use temporal splits and sequence-based modeling rather than random row-level evaluation.
 
----
-
-### 1.3 Student Attempt Distribution
+#### 15.1.3 Student Attempt Distribution
 
 <p align="center">
   <img src="docs/figures/student_attempt_distribution.png" width="75%" alt="Student attempt distribution">
@@ -528,9 +785,7 @@ This figure shows how many attempts students contributed. In online learning dat
 **Why it matters:**  
 This distribution motivates student-wise temporal modeling. Students with long histories provide richer signals for rolling accuracy, streaks, and sequence models, while students with shorter histories are more challenging. This also motivates uncertainty-aware prediction because models may be less confident when historical evidence is limited.
 
----
-
-### 1.4 Exercise Difficulty Distribution
+#### 15.1.4 Exercise Difficulty Distribution
 
 <p align="center">
   <img src="docs/figures/exercise_difficulty_distribution.png" width="65%" alt="Exercise difficulty distribution">
@@ -542,11 +797,9 @@ This figure summarizes the empirical difficulty of exercises, estimated from inc
 **Why it matters:**  
 Exercise difficulty is educationally important. A student's correctness does not depend only on ability or behavior; it also depends on the difficulty of the attempted item. This figure supports the use of exercise/content context and helps explain why removing problem/exercise identity in the ablation study substantially reduces ROC-AUC.
 
----
+### 15.2 Model Comparison Figures
 
-## 2. Model Comparison Figures
-
-### 2.1 ROC-AUC Model Comparison
+#### 15.2.1 ROC-AUC Model Comparison
 
 <p align="center">
   <img src="docs/figures/model_comparison_roc_auc.png" width="70%" alt="Model comparison ROC-AUC">
@@ -561,9 +814,7 @@ The figure shows that Logistic Regression achieved the strongest ranking perform
 **Key takeaway:**  
 The project should be presented as a comparative educational data mining study, not as a claim that the Transformer is the best model.
 
----
-
-### 2.2 PR-AUC Model Comparison
+#### 15.2.2 PR-AUC Model Comparison
 
 <p align="center">
   <img src="docs/figures/model_comparison_pr_auc.png" width="70%" alt="Model comparison PR-AUC">
@@ -575,9 +826,7 @@ This figure compares models using Precision-Recall AUC. PR-AUC is useful when th
 **Why it matters:**  
 The PR-AUC result confirms the same general pattern as ROC-AUC: the engineered tabular model performs strongly. It also helps ensure that the ranking result is not an artifact of a single metric.
 
----
-
-### 2.3 Brier Score Comparison
+#### 15.2.3 Brier Score Comparison
 
 <p align="center">
   <img src="docs/figures/model_comparison_brier_score.png" width="70%" alt="Model comparison Brier score">
@@ -589,11 +838,9 @@ This figure compares the probability calibration quality of different models. Lo
 **Why it matters:**  
 Calibration is important in education because predicted probabilities may be interpreted as risk levels. A model with good ranking but poor calibration may still be problematic for decision support. This figure connects model evaluation to responsible educational interpretation.
 
----
+### 15.3 Curves and Calibration Figures
 
-## 3. Curves and Calibration Figures
-
-### 3.1 Logistic Regression ROC Curve
+#### 15.3.1 Logistic Regression ROC Curve
 
 <p align="center">
   <img src="docs/figures/logistic_regression_roc_curve.png" width="65%" alt="Logistic regression ROC curve">
@@ -605,9 +852,7 @@ This curve shows the tradeoff between true positive rate and false positive rate
 **Why it matters:**  
 It provides a visual explanation of the ROC-AUC value and demonstrates that the best tabular model has meaningful discriminative power beyond the majority or previous-correctness baselines.
 
----
-
-### 3.2 Logistic Regression Precision-Recall Curve
+#### 15.3.2 Logistic Regression Precision-Recall Curve
 
 <p align="center">
   <img src="docs/figures/logistic_regression_pr_curve.png" width="65%" alt="Logistic regression PR curve">
@@ -619,9 +864,7 @@ This curve shows how precision and recall trade off under different thresholds.
 **Why it matters:**  
 In educational applications, threshold choice matters. A strict threshold may identify fewer students/attempts but with higher confidence, while a more permissive threshold may capture more possible risk cases but include more false alarms.
 
----
-
-### 3.3 Logistic Regression Calibration Curve
+#### 15.3.3 Logistic Regression Calibration Curve
 
 <p align="center">
   <img src="docs/figures/logistic_regression_calibration.png" width="65%" alt="Logistic regression calibration">
@@ -633,9 +876,7 @@ This figure compares predicted probabilities against observed correctness rates.
 **Why it matters:**  
 A calibrated model is more trustworthy when probabilities are interpreted as risk estimates. For example, among attempts predicted at around 0.80 correctness probability, the observed correctness rate should ideally be close to 0.80.
 
----
-
-### 3.4 GRU Sequence ROC Curve
+#### 15.3.4 GRU Sequence ROC Curve
 
 <p align="center">
   <img src="docs/figures/gru_sequence_roc_curve.png" width="65%" alt="GRU sequence ROC curve">
@@ -647,9 +888,7 @@ This curve summarizes the discrimination performance of the GRU sequence model.
 **Why it matters:**  
 GRU is the strongest sequence model in the completed experiment. It provides evidence that neural temporal models can learn useful patterns from student attempt sequences, even though the best overall model remains tabular.
 
----
-
-### 3.5 Transformer Sequence ROC Curve
+#### 15.3.5 Transformer Sequence ROC Curve
 
 <p align="center">
   <img src="docs/figures/transformer_sequence_roc_curve.png" width="65%" alt="Transformer sequence ROC curve">
@@ -661,11 +900,9 @@ This curve summarizes the discrimination performance of the Transformer sequence
 **Why it matters:**  
 The Transformer is aligned with the project title and provides an attention-based temporal modeling approach. Its performance is competitive but not the best. This is an important research finding: architecture complexity alone does not guarantee superior performance when strong tabular features are available.
 
----
+### 15.4 Ablation and Uncertainty Figures
 
-## 4. Ablation and Uncertainty Figures
-
-### 4.1 ROC-AUC Drop by Feature Ablation
+#### 15.4.1 ROC-AUC Drop by Feature Ablation
 
 <p align="center">
   <img src="docs/figures/logistic_regression_roc_auc_drop_vs_full.png" width="75%" alt="Ablation ROC-AUC drop">
@@ -677,9 +914,7 @@ This figure shows how much ROC-AUC decreases when specific feature families are 
 **Why it matters:**  
 The largest drop occurs when the model is restricted to behavior-history-only features or when problem/exercise identity is removed. This indicates that content context is essential for predicting student correctness in this dataset.
 
----
-
-### 4.2 PR-AUC Drop by Feature Ablation
+#### 15.4.2 PR-AUC Drop by Feature Ablation
 
 <p align="center">
   <img src="docs/figures/logistic_regression_pr_auc_drop_vs_full.png" width="75%" alt="Ablation PR-AUC drop">
@@ -691,9 +926,7 @@ This figure shows how PR-AUC changes after removing feature families.
 **Why it matters:**  
 It confirms that feature-family importance is not limited to ROC-AUC. Problem/exercise identity and broader context remain important under precision-recall evaluation.
 
----
-
-### 4.3 Uncertainty Distribution
+#### 15.4.3 Uncertainty Distribution
 
 <p align="center">
   <img src="docs/figures/uncertainty_distribution.png" width="70%" alt="Uncertainty distribution">
@@ -705,9 +938,7 @@ This figure visualizes the distribution of predictive uncertainty estimated thro
 **Why it matters:**  
 Uncertainty distribution is central to the Bayesian component of the project. It shows that predictions are not all equally reliable. Some predictions have low uncertainty and may be more suitable for confident interpretation, while others have high uncertainty and require caution.
 
----
-
-## Figure-Level Summary
+### 15.5 Figure-Level Summary
 
 Together, the figures support the full research story:
 
@@ -721,32 +952,15 @@ Together, the figures support the full research story:
 
 ---
 
-## Output Artifacts
+## 16. Reproducibility
 
-Important output files include:
-
-| Path | Description |
-|---|---|
-| `docs/tables/journal_model_ranking.csv` | Final model ranking table |
-| `docs/tables/model_performance_comparison.csv` | Full model comparison metrics |
-| `docs/tables/journal_metric_confidence_intervals.csv` | Confidence interval summary |
-| `docs/tables/ablation_test_deltas.csv` | Ablation study results |
-| `docs/tables/risk_group_analysis.csv` | Risk group table |
-| `docs/reports/ablation_study_report.md` | Detailed ablation interpretation |
-| `docs/reports/risk_group_analysis.md` | Detailed risk-group interpretation |
-| `docs/figures/` | GitHub-safe figures for README, presentation, and reporting |
-
----
-
-## Reproducibility
-
-### 1. Install Dependencies
+### 16.1 Install Dependencies
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-### 2. Place Dataset Files
+### 16.2 Place Dataset Files
 
 Raw Junyi files are intentionally not tracked in Git because of size and dataset distribution constraints.
 
@@ -759,7 +973,7 @@ dataset/
   Info_UserData.csv
 ```
 
-### 3. Full Journal Run
+### 16.3 Full Journal Run
 
 ```bash
 python src/data/scan_dataset.py --config configs/gx10_journal.json --full
@@ -772,7 +986,7 @@ python src/evaluation/ablation_study.py --config configs/gx10_ablation.json
 python src/evaluation/journal_analysis.py --results-dir hasil_project_junyi_journal
 ```
 
-### 4. Quick Smoke Test
+### 16.4 Quick Smoke Test
 
 ```bash
 python src/features/build_features.py --config configs/preflight.json
@@ -785,7 +999,7 @@ python src/evaluation/ablation_study.py --config configs/preflight_ablation.json
 
 ---
 
-## Repository Structure
+## 17. Repository Structure
 
 ```text
 configs/
@@ -824,7 +1038,7 @@ README.md
 
 ---
 
-## Academic Interpretation
+## 18. Academic Interpretation
 
 The main conclusion is:
 
@@ -832,9 +1046,7 @@ The main conclusion is:
 
 This framing is intentionally conservative and academically defensible.
 
----
-
-## Claims to Avoid
+### 18.1 Claims to Avoid
 
 The following claims should not be made:
 
@@ -848,7 +1060,7 @@ The following claims should not be made:
 
 ---
 
-## Limitations
+## 19. Limitations
 
 - This is an offline historical analysis, not a deployed intervention system.
 - The strongest predictive model is tabular, not Transformer-based.
@@ -860,7 +1072,7 @@ The following claims should not be made:
 
 ---
 
-## Future Work
+## 20. Future Work
 
 Potential extensions include:
 
@@ -876,7 +1088,7 @@ Potential extensions include:
 
 ---
 
-## Project Status
+## 21. Project Status
 
 The project is complete as a reproducible educational data mining pipeline.
 
@@ -904,6 +1116,6 @@ Remaining optional work:
 
 ---
 
-## Suggested One-Sentence Presentation Summary
+## 22. Suggested One-Sentence Presentation Summary
 
 > This project uses large-scale Junyi Academy online learning logs to predict next-attempt correctness through leakage-aware temporal feature engineering, comparative machine learning, GRU/Transformer sequence modeling, and Bayesian uncertainty-aware risk analysis.
