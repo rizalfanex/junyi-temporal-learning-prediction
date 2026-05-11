@@ -16,6 +16,8 @@ env/
 .ipynb_checkpoints/
 .vscode/
 .idea/
+/architecture_system.png
+/bayesian_model.png
 
 # Raw Junyi dataset files are large and must be downloaded/placed locally
 dataset/*.csv

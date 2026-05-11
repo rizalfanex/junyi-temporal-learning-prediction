@@ -74,6 +74,7 @@ The strongest academic interpretation is:
 - [13. Ablation Study](#13-ablation-study)
 - [14. Bayesian Uncertainty and Risk Group Analysis](#14-bayesian-uncertainty-and-risk-group-analysis)
 - [15. Figure Walkthrough and Research Narrative](#15-figure-walkthrough-and-research-narrative)
+  - [15.0 Proposed Architecture Figures](#150-proposed-architecture-figures)
 - [16. Reproducibility](#16-reproducibility)
 - [17. Repository Structure](#17-repository-structure)
 - [18. Academic Interpretation](#18-academic-interpretation)
@@ -752,6 +753,32 @@ This analysis supports a human-in-the-loop perspective. The model should not aut
 ## 15. Figure Walkthrough and Research Narrative
 
 The figures below are not only visual outputs; they form a reader journey from dataset understanding, to model comparison, to uncertainty-aware educational interpretation.
+
+### 15.0 Proposed Architecture Figures
+
+#### 15.0.1 Overall System Architecture
+
+<p align="center">
+  <img src="docs/figures/architecture_system.png" width="100%" alt="Overall system architecture for Junyi temporal learning behavior modeling">
+</p>
+
+**What this figure shows:**  
+This figure summarizes the end-to-end research framework, beginning with Junyi Academy log tensor sources, transforming raw exercise attempts into student-wise ordered temporal sequences, constructing leakage-aware temporal features, comparing tabular and sequence models, and producing uncertainty-aware educational risk interpretation.
+
+**Why it matters:**  
+The architecture makes the methodological scope explicit: this is an offline educational data mining pipeline based on online learning logs. It also clarifies that tabular baselines, GRU, and Transformer models are compared rather than fused into a single ensemble. The risk matrix is connected to Bayesian uncertainty outputs, which is consistent with the MC Dropout inference design.
+
+#### 15.0.2 Proposed Bayesian Transformer Architecture
+
+<p align="center">
+  <img src="docs/figures/bayesian_model.png" width="100%" alt="Proposed Bayesian Transformer architecture for next-attempt correctness prediction">
+</p>
+
+**What this figure shows:**  
+This figure focuses on the proposed Bayesian Transformer model. A fixed-length student learning window is encoded through categorical embeddings and numerical temporal projections, enriched with positional encoding, processed by Transformer Encoder blocks, and passed through an MC Dropout inference head to estimate both mean predicted correctness and predictive uncertainty.
+
+**Why it matters:**  
+This figure separates the proposed uncertainty-aware sequence model from the full experimental system. It highlights the central modeling idea behind the project title while preserving the empirical framing that model comparison remains necessary and that the Transformer should not be overclaimed as the best-performing model in the current run.
 
 ### 15.1 Dataset Overview Figures
 
