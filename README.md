@@ -74,14 +74,12 @@ The strongest academic interpretation is:
 - [12. Main Experimental Results](#12-main-experimental-results)
 - [13. Ablation Study](#13-ablation-study)
 - [14. Bayesian Uncertainty and Risk Group Analysis](#14-bayesian-uncertainty-and-risk-group-analysis)
-- [15. Figure Walkthrough and Research Narrative](#15-figure-walkthrough-and-research-narrative)
-  - [15.0 Proposed Architecture Figures](#150-proposed-architecture-figures)
-- [16. Reproducibility](#16-reproducibility)
-- [17. Repository Structure](#17-repository-structure)
-- [18. Academic Interpretation](#18-academic-interpretation)
-- [19. Limitations](#19-limitations)
-- [20. Future Work](#20-future-work)
-- [21. Project Status](#21-project-status)
+- [15. Reproducibility](#15-reproducibility)
+- [16. Repository Structure](#16-repository-structure)
+- [17. Academic Interpretation](#17-academic-interpretation)
+- [18. Limitations](#18-limitations)
+- [19. Future Work](#19-future-work)
+- [20. Project Status](#20-project-status)
 
 ---
 
@@ -773,250 +771,15 @@ This analysis supports a human-in-the-loop perspective. The model should not aut
 
 ---
 
-## 15. Figure Walkthrough and Research Narrative
+## 15. Reproducibility
 
-The figures below are not only visual outputs; they form a reader journey from dataset understanding, to model comparison, to uncertainty-aware educational interpretation.
-
-### 15.0 Proposed Architecture Figures
-
-#### 15.0.1 Overall System Architecture
-
-<p align="center">
-  <img src="docs/figures/architecture_system.png" width="100%" alt="Overall system architecture for Junyi temporal learning behavior modeling">
-</p>
-
-**What this figure shows:**  
-This figure summarizes the end-to-end research framework, beginning with Junyi Academy log tensor sources, transforming raw exercise attempts into student-wise ordered temporal sequences, constructing leakage-aware temporal features, comparing tabular and sequence models, and producing uncertainty-aware educational risk interpretation.
-
-**Why it matters:**  
-The architecture makes the methodological scope explicit: this is an offline educational data mining pipeline based on online learning logs. It also clarifies that tabular baselines, GRU, and Transformer models are compared rather than fused into a single ensemble. The risk matrix is connected to Bayesian uncertainty outputs, which is consistent with the MC Dropout inference design.
-
-#### 15.0.2 Proposed Bayesian Transformer Architecture
-
-<p align="center">
-  <img src="docs/figures/bayesian_model.png" width="100%" alt="Proposed Bayesian Transformer architecture for next-attempt correctness prediction">
-</p>
-
-**What this figure shows:**  
-This figure focuses on the proposed Bayesian Transformer model. A fixed-length student learning window is encoded through categorical embeddings and numerical temporal projections, enriched with positional encoding, processed by Transformer Encoder blocks, and passed through an MC Dropout inference head to estimate both mean predicted correctness and predictive uncertainty.
-
-**Why it matters:**  
-This figure separates the proposed uncertainty-aware sequence model from the full experimental system. It highlights the central modeling idea behind the project title while preserving the empirical framing that model comparison remains necessary and that the Transformer should not be overclaimed as the best-performing model in the current run.
-
-### 15.1 Dataset Overview Figures
-
-#### 15.1.1 Correctness Distribution
-
-<p align="center">
-  <img src="docs/figures/correctness_distribution.png" width="65%" alt="Correctness distribution">
-</p>
-
-**What this figure shows:**  
-This figure summarizes the distribution of correct and incorrect attempts in the Junyi learning logs. It provides the first view of the classification target. Since correct attempts are more common than incorrect attempts, accuracy alone is not sufficient for evaluating model quality.
-
-**Why it matters:**  
-The class distribution explains why this project reports ROC-AUC, PR-AUC, F1-score, and Brier Score rather than relying only on accuracy. A majority baseline can achieve a deceptively high F1 or accuracy-like impression, but it does not provide meaningful discrimination between likely correct and likely incorrect attempts.
-
-#### 15.1.2 Activity Over Time
-
-<p align="center">
-  <img src="docs/figures/activity_over_time.png" width="75%" alt="Activity over time">
-</p>
-
-**What this figure shows:**  
-This figure visualizes online learning activity across the dataset period. It helps verify that the dataset spans a full year and captures temporal variation in platform usage.
-
-**Why it matters:**  
-Temporal variation is central to the project. Student behavior changes over time, and the prediction task is designed to respect chronological order. This figure supports the decision to use temporal splits and sequence-based modeling rather than random row-level evaluation.
-
-#### 15.1.3 Student Attempt Distribution
-
-<p align="center">
-  <img src="docs/figures/student_attempt_distribution.png" width="75%" alt="Student attempt distribution">
-</p>
-
-**What this figure shows:**  
-This figure shows how many attempts students contributed. In online learning datasets, student activity is usually highly uneven: some students attempt only a small number of problems, while others generate long learning histories.
-
-**Why it matters:**  
-This distribution motivates student-wise temporal modeling. Students with long histories provide richer signals for rolling accuracy, streaks, and sequence models, while students with shorter histories are more challenging. This also motivates uncertainty-aware prediction because models may be less confident when historical evidence is limited.
-
-#### 15.1.4 Exercise Difficulty Distribution
-
-<p align="center">
-  <img src="docs/figures/exercise_difficulty_distribution.png" width="65%" alt="Exercise difficulty distribution">
-</p>
-
-**What this figure shows:**  
-This figure summarizes the empirical difficulty of exercises, estimated from incorrect rates or content-level difficulty-related signals.
-
-**Why it matters:**  
-Exercise difficulty is educationally important. A student's correctness does not depend only on ability or behavior; it also depends on the difficulty of the attempted item. This figure supports the use of exercise/content context and helps explain why removing problem/exercise identity in the ablation study substantially reduces ROC-AUC.
-
-### 15.2 Model Comparison Figures
-
-#### 15.2.1 ROC-AUC Model Comparison
-
-<p align="center">
-  <img src="docs/figures/model_comparison_roc_auc.png" width="70%" alt="Model comparison ROC-AUC">
-</p>
-
-**What this figure shows:**  
-This figure compares models based on ROC-AUC. ROC-AUC measures how well a model ranks correct attempts above incorrect attempts across thresholds.
-
-**Why it matters:**  
-The figure shows that Logistic Regression achieved the strongest ranking performance. This result is methodologically important because it demonstrates that strong leakage-aware feature engineering can outperform more complex neural models in this dataset.
-
-**Key takeaway:**  
-The project should be presented as a comparative educational data mining study, not as a claim that the Transformer is the best model.
-
-#### 15.2.2 PR-AUC Model Comparison
-
-<p align="center">
-  <img src="docs/figures/model_comparison_pr_auc.png" width="70%" alt="Model comparison PR-AUC">
-</p>
-
-**What this figure shows:**  
-This figure compares models using Precision-Recall AUC. PR-AUC is useful when the class distribution is imbalanced or when the positive class is the main focus.
-
-**Why it matters:**  
-The PR-AUC result confirms the same general pattern as ROC-AUC: the engineered tabular model performs strongly. It also helps ensure that the ranking result is not an artifact of a single metric.
-
-#### 15.2.3 Brier Score Comparison
-
-<p align="center">
-  <img src="docs/figures/model_comparison_brier_score.png" width="70%" alt="Model comparison Brier score">
-</p>
-
-**What this figure shows:**  
-This figure compares the probability calibration quality of different models. Lower Brier Score indicates better calibrated probability predictions.
-
-**Why it matters:**  
-Calibration is important in education because predicted probabilities may be interpreted as risk levels. A model with good ranking but poor calibration may still be problematic for decision support. This figure connects model evaluation to responsible educational interpretation.
-
-### 15.3 Curves and Calibration Figures
-
-#### 15.3.1 Logistic Regression ROC Curve
-
-<p align="center">
-  <img src="docs/figures/logistic_regression_roc_curve.png" width="65%" alt="Logistic regression ROC curve">
-</p>
-
-**What this figure shows:**  
-This curve shows the tradeoff between true positive rate and false positive rate for the strongest model.
-
-**Why it matters:**  
-It provides a visual explanation of the ROC-AUC value and demonstrates that the best tabular model has meaningful discriminative power beyond the majority or previous-correctness baselines.
-
-#### 15.3.2 Logistic Regression Precision-Recall Curve
-
-<p align="center">
-  <img src="docs/figures/logistic_regression_pr_curve.png" width="65%" alt="Logistic regression PR curve">
-</p>
-
-**What this figure shows:**  
-This curve shows how precision and recall trade off under different thresholds.
-
-**Why it matters:**  
-In educational applications, threshold choice matters. A strict threshold may identify fewer students/attempts but with higher confidence, while a more permissive threshold may capture more possible risk cases but include more false alarms.
-
-#### 15.3.3 Logistic Regression Calibration Curve
-
-<p align="center">
-  <img src="docs/figures/logistic_regression_calibration.png" width="65%" alt="Logistic regression calibration">
-</p>
-
-**What this figure shows:**  
-This figure compares predicted probabilities against observed correctness rates.
-
-**Why it matters:**  
-A calibrated model is more trustworthy when probabilities are interpreted as risk estimates. For example, among attempts predicted at around 0.80 correctness probability, the observed correctness rate should ideally be close to 0.80.
-
-#### 15.3.4 GRU Sequence ROC Curve
-
-<p align="center">
-  <img src="docs/figures/gru_sequence_roc_curve.png" width="65%" alt="GRU sequence ROC curve">
-</p>
-
-**What this figure shows:**  
-This curve summarizes the discrimination performance of the GRU sequence model.
-
-**Why it matters:**  
-GRU is the strongest sequence model in the completed experiment. It provides evidence that neural temporal models can learn useful patterns from student attempt sequences, even though the best overall model remains tabular.
-
-#### 15.3.5 Transformer Sequence ROC Curve
-
-<p align="center">
-  <img src="docs/figures/transformer_sequence_roc_curve.png" width="65%" alt="Transformer sequence ROC curve">
-</p>
-
-**What this figure shows:**  
-This curve summarizes the discrimination performance of the Transformer sequence model.
-
-**Why it matters:**  
-The Transformer is aligned with the project title and provides an attention-based temporal modeling approach. Its performance is competitive but not the best. This is an important research finding: architecture complexity alone does not guarantee superior performance when strong tabular features are available.
-
-### 15.4 Ablation and Uncertainty Figures
-
-#### 15.4.1 ROC-AUC Drop by Feature Ablation
-
-<p align="center">
-  <img src="docs/figures/logistic_regression_roc_auc_drop_vs_full.png" width="75%" alt="Ablation ROC-AUC drop">
-</p>
-
-**What this figure shows:**  
-This figure shows how much ROC-AUC decreases when specific feature families are removed.
-
-**Why it matters:**  
-The largest drop occurs when the model is restricted to behavior-history-only features or when problem/exercise identity is removed. This indicates that content context is essential for predicting student correctness in this dataset.
-
-#### 15.4.2 PR-AUC Drop by Feature Ablation
-
-<p align="center">
-  <img src="docs/figures/logistic_regression_pr_auc_drop_vs_full.png" width="75%" alt="Ablation PR-AUC drop">
-</p>
-
-**What this figure shows:**  
-This figure shows how PR-AUC changes after removing feature families.
-
-**Why it matters:**  
-It confirms that feature-family importance is not limited to ROC-AUC. Problem/exercise identity and broader context remain important under precision-recall evaluation.
-
-#### 15.4.3 Uncertainty Distribution
-
-<p align="center">
-  <img src="docs/figures/uncertainty_distribution.png" width="70%" alt="Uncertainty distribution">
-</p>
-
-**What this figure shows:**  
-This figure visualizes the distribution of predictive uncertainty estimated through MC Dropout.
-
-**Why it matters:**  
-Uncertainty distribution is central to the Bayesian component of the project. It shows that predictions are not all equally reliable. Some predictions have low uncertainty and may be more suitable for confident interpretation, while others have high uncertainty and require caution.
-
-### 15.5 Figure-Level Summary
-
-Together, the figures support the full research story:
-
-1. The dataset contains large-scale and temporally structured learning activity.
-2. The prediction target is imbalanced enough to require multiple evaluation metrics.
-3. Exercise/content context provides strong predictive signal.
-4. Logistic Regression with leakage-aware features performs best overall.
-5. GRU and Transformer provide useful sequence modeling baselines.
-6. MC Dropout uncertainty enables risk-aware educational interpretation.
-7. The project is strongest when framed as a comparative and methodologically careful educational data mining study.
-
----
-
-## 16. Reproducibility
-
-### 16.1 Install Dependencies
+### 15.1 Install Dependencies
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-### 16.2 Place Dataset Files
+### 15.2 Place Dataset Files
 
 Raw Junyi files are intentionally not tracked in Git because of size and dataset distribution constraints.
 
@@ -1029,7 +792,7 @@ dataset/
   Info_UserData.csv
 ```
 
-### 16.3 Full Journal Run
+### 15.3 Full Journal Run
 
 ```bash
 python src/data/scan_dataset.py --config configs/gx10_journal.json --full
@@ -1042,7 +805,7 @@ python src/evaluation/ablation_study.py --config configs/gx10_ablation.json
 python src/evaluation/journal_analysis.py --results-dir hasil_project_junyi_journal
 ```
 
-### 16.4 Quick Smoke Test
+### 15.4 Quick Smoke Test
 
 ```bash
 python src/features/build_features.py --config configs/preflight.json
@@ -1055,7 +818,7 @@ python src/evaluation/ablation_study.py --config configs/preflight_ablation.json
 
 ---
 
-## 17. Repository Structure
+## 16. Repository Structure
 
 ```text
 configs/
@@ -1094,7 +857,7 @@ README.md
 
 ---
 
-## 18. Academic Interpretation
+## 17. Academic Interpretation
 
 The main conclusion is:
 
@@ -1116,7 +879,7 @@ The following claims should not be made:
 
 ---
 
-## 19. Limitations
+## 18. Limitations
 
 - This is an offline historical analysis, not a deployed intervention system.
 - The strongest predictive model is tabular, not Transformer-based.
@@ -1128,7 +891,7 @@ The following claims should not be made:
 
 ---
 
-## 20. Future Work
+## 19. Future Work
 
 Potential extensions include:
 
@@ -1144,7 +907,7 @@ Potential extensions include:
 
 ---
 
-## 21. Project Status
+## 20. Project Status
 
 The project is complete as a reproducible educational data mining pipeline.
 
