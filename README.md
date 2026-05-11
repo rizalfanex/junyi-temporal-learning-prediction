@@ -58,15 +58,16 @@ The strongest academic interpretation is:
   - [7.1 Temporal Next-Attempt Prediction](#71-temporal-next-attempt-prediction)
   - [7.2 Binary Classification Objective](#72-binary-classification-objective)
 - [8. Methodology](#8-methodology)
-  - [8.1 Methodological Pipeline](#81-methodological-pipeline)
-  - [8.2 Student-Wise Temporal Ordering](#82-student-wise-temporal-ordering)
-  - [8.3 Leakage-Aware Feature Construction](#83-leakage-aware-feature-construction)
-  - [8.4 Temporal Train/Validation/Test Split](#84-temporal-trainvalidationtest-split)
-  - [8.5 Logistic Regression Baseline](#85-logistic-regression-baseline)
-  - [8.6 GRU Sequence Model](#86-gru-sequence-model)
-  - [8.7 Transformer Encoder Sequence Model](#87-transformer-encoder-sequence-model)
-  - [8.8 Monte Carlo Dropout Bayesian Approximation](#88-monte-carlo-dropout-bayesian-approximation)
-  - [8.9 Risk Group Formulation](#89-risk-group-formulation)
+  - [8.1 Proposed System and Model Architecture](#81-proposed-system-and-model-architecture)
+  - [8.2 Methodological Pipeline](#82-methodological-pipeline)
+  - [8.3 Student-Wise Temporal Ordering](#83-student-wise-temporal-ordering)
+  - [8.4 Leakage-Aware Feature Construction](#84-leakage-aware-feature-construction)
+  - [8.5 Temporal Train/Validation/Test Split](#85-temporal-trainvalidationtest-split)
+  - [8.6 Logistic Regression Baseline](#86-logistic-regression-baseline)
+  - [8.7 GRU Sequence Model](#87-gru-sequence-model)
+  - [8.8 Transformer Encoder Sequence Model](#88-transformer-encoder-sequence-model)
+  - [8.9 Monte Carlo Dropout Bayesian Approximation](#89-monte-carlo-dropout-bayesian-approximation)
+  - [8.10 Risk Group Formulation](#810-risk-group-formulation)
 - [9. Feature Engineering](#9-feature-engineering)
 - [10. Training Environment](#10-training-environment)
 - [11. Model Evaluation Metrics](#11-model-evaluation-metrics)
@@ -293,7 +294,29 @@ This objective is used for neural sequence models and conceptually aligns with p
 
 ## 8. Methodology
 
-### 8.1 Methodological Pipeline
+### 8.1 Proposed System and Model Architecture
+
+The proposed research framework is organized around two complementary views: the full end-to-end educational data mining system and the Bayesian Transformer model used for uncertainty-aware temporal prediction.
+
+#### 8.1.1 Overall System Architecture
+
+<p align="center">
+  <img src="docs/figures/architecture_system.png" width="100%" alt="Overall system architecture for Junyi temporal learning behavior modeling">
+</p>
+
+**Figure 1. Overall system architecture.**  
+The framework begins with Junyi Academy log tensor sources, transforms raw exercise attempts into student-wise ordered temporal sequences, constructs leakage-aware temporal features, compares tabular and sequence models, and produces uncertainty-aware educational risk interpretation. Tabular baselines, GRU, and Transformer models are compared rather than fused into a single ensemble. The risk matrix is connected to Bayesian uncertainty outputs from MC Dropout inference.
+
+#### 8.1.2 Proposed Bayesian Transformer Architecture
+
+<p align="center">
+  <img src="docs/figures/bayesian_model.png" width="100%" alt="Proposed Bayesian Transformer architecture for next-attempt correctness prediction">
+</p>
+
+**Figure 2. Proposed Bayesian Transformer architecture.**  
+A fixed-length student learning window is encoded through categorical embeddings and numerical temporal projections, enriched with positional encoding, processed by Transformer Encoder blocks, and passed through an MC Dropout inference head to estimate both mean predicted correctness and predictive uncertainty. This figure represents the proposed uncertainty-aware sequence model, while the empirical study still compares it against tabular and GRU baselines.
+
+### 8.2 Methodological Pipeline
 
 The full experimental pipeline is:
 
@@ -319,7 +342,7 @@ The central methodological principle is:
 
 > Each prediction must use only information that would have been available before the target attempt.
 
-### 8.2 Student-Wise Temporal Ordering
+### 8.3 Student-Wise Temporal Ordering
 
 For each student, all problem attempts are sorted in chronological order before feature engineering and sequence construction.
 
@@ -335,9 +358,9 @@ The stable `raw_row_id` ensures deterministic ordering when two or more records 
 
 This ordering step is important because all historical features must be computed from past attempts only. Without stable chronological ordering, rolling accuracy, previous correctness, streak features, and sequence windows could become inconsistent.
 
-### 8.3 Leakage-Aware Feature Construction
+### 8.4 Leakage-Aware Feature Construction
 
-#### 8.3.1 Previous Accuracy
+#### 8.4.1 Previous Accuracy
 
 The previous accuracy of a student before attempt \(t\) is computed as:
 
@@ -348,7 +371,7 @@ $$
 
 This excludes the current target label \(y_{u,t}\).
 
-#### 8.3.2 Rolling Accuracy
+#### 8.4.2 Rolling Accuracy
 
 The rolling accuracy over the previous \(k\) attempts is:
 
@@ -359,7 +382,7 @@ $$
 
 where only attempts before \(t\) are included. In this project, rolling windows such as \(k=5\) and \(k=10\) are used.
 
-#### 8.3.3 Time Gap
+#### 8.4.3 Time Gap
 
 The time gap between two consecutive attempts is:
 
@@ -369,7 +392,7 @@ $$
 
 This feature captures learning rhythm, spacing, and inactivity periods.
 
-#### 8.3.4 Exercise Difficulty Proxy
+#### 8.4.4 Exercise Difficulty Proxy
 
 For validation and test rows, empirical exercise difficulty is estimated only from the training split:
 
@@ -389,7 +412,7 @@ $$
 
 This prevents target leakage in aggregate encodings.
 
-### 8.4 Temporal Train/Validation/Test Split
+### 8.5 Temporal Train/Validation/Test Split
 
 The final processed data is split temporally within each student.
 
@@ -401,7 +424,7 @@ The final processed data is split temporally within each student.
 
 This strategy is more realistic than random row splitting because it evaluates whether earlier behavior can predict later behavior for the same student.
 
-### 8.5 Logistic Regression Baseline
+### 8.6 Logistic Regression Baseline
 
 The Logistic Regression model estimates correctness probability as:
 
@@ -417,7 +440,7 @@ $$
 
 The model is simple but highly interpretable. In the completed experiment, it achieved the best ROC-AUC and PR-AUC because the engineered temporal and content-context features are highly informative.
 
-### 8.6 GRU Sequence Model
+### 8.7 GRU Sequence Model
 
 For the GRU model, each input sequence is:
 
@@ -445,7 +468,7 @@ $$
 
 The final hidden state is passed to a binary classification head.
 
-### 8.7 Transformer Encoder Sequence Model
+### 8.8 Transformer Encoder Sequence Model
 
 The Transformer model treats prior student attempts as an ordered sequence:
 
@@ -487,7 +510,7 @@ $$
 
 The Transformer is aligned with the project title because it models temporal learning histories using attention over prior attempts. However, in the completed experiment, it is not overclaimed as the best-performing model.
 
-### 8.8 Monte Carlo Dropout Bayesian Approximation
+### 8.9 Monte Carlo Dropout Bayesian Approximation
 
 Monte Carlo Dropout approximates Bayesian predictive uncertainty by keeping dropout active during inference.
 
@@ -511,7 +534,7 @@ $$
 
 This allows the project to separate correctness probability from uncertainty.
 
-### 8.9 Risk Group Formulation
+### 8.10 Risk Group Formulation
 
 Risk groups are defined from predicted correctness probability \(\mu_i\) and uncertainty \(\sigma_i\).
 
